@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b6e6e">
+<title>MedStudy</title>
+<style>
+:root{--bg:#eef3f3;--card:#fff;--ink:#14272b;--mute:#5a6e72;--line:#d5e0e1;--pri:#0b6e6e;--tonal:#cfe9e7;--fn:#1b6a87;--md:#b45309;--acc:#d9480f;--danger:#c0392b;--ds:#7b3fa0;--ot:#3f5d9c}
+@media(prefers-color-scheme:dark){:root{--bg:#0e1a1b;--card:#172628;--ink:#e5eff0;--mute:#9db3b6;--line:#2a4144;--pri:#0a4f50;--tonal:#235a58;--fn:#6cc1de;--md:#f2a65a;--acc:#e8602c;--danger:#ff8a78;--ds:#c9a0e8;--ot:#9db4ee}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:17px/1.45 Roboto,"Segoe UI",system-ui,Arial,sans-serif}
+a{color:inherit;text-decoration:none}
+.app{height:100%;max-width:760px;margin:0 auto;display:flex;flex-direction:column;position:relative;background:var(--bg)}
+.bar{background:var(--pri);color:#fff;display:flex;align-items:center;padding:10px 12px;box-shadow:0 2px 6px rgba(0,0,0,.25);min-height:56px}
+.bar h1{margin:0;font-size:1.25rem;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar button{background:none;border:0;color:#fff;font-size:1.6rem;padding:4px 14px 4px 4px;cursor:pointer}
+main{flex:1;overflow-y:auto;padding:12px 12px 96px;-webkit-overflow-scrolling:touch}
+.search{display:flex;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:28px;padding:0 8px 0 18px;margin-bottom:6px}
+.search input{flex:1;border:0;background:none;color:var(--ink);font:inherit;padding:14px 0;outline:none;min-width:0}
+.txt{background:none;border:0;color:var(--pri);font:500 .95rem Roboto,Arial,sans-serif;padding:10px 12px;cursor:pointer}
+.cap{color:var(--mute);font-size:.88rem;margin:10px 4px 6px}
+.let{font-weight:700;color:var(--pri);margin:14px 4px 6px}
+.grid{display:grid;grid-template-columns:1fr 1fr;grid-gap:10px}
+.tile{display:block;background:var(--card);border-radius:14px;padding:14px;border-left:7px solid var(--pri);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.tile b{display:block}.tile small,.row small{color:var(--mute);font-size:.82rem}
+.row{display:flex;align-items:center;background:var(--card);padding:11px 14px;border-radius:12px;margin-bottom:7px;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.row .g{flex:1;min-width:0}.row b{display:block;overflow:hidden;text-overflow:ellipsis}
+.row small{display:block}
+.star{color:#e6a700;margin-right:8px;font-size:1.1rem}
+.b{font-size:.74rem;font-weight:700;padding:3px 10px;border-radius:99px;color:#fff;white-space:nowrap}
+.b.f{background:var(--fn)}.b.m{background:var(--md)}.b.d{background:var(--ds)}.b.o{background:var(--ot)}
+@media(prefers-color-scheme:dark){.b{color:#0e1a1b}}
+.sm{background:var(--tonal);color:var(--ink);font-size:.72rem;padding:2px 8px;border-radius:99px;margin-left:6px}
+.empty{text-align:center;color:var(--mute);padding:34px 10px}
+.btn,button.btn{display:inline-block;border:0;background:var(--pri);color:#fff;font:500 1rem Roboto,Arial,sans-serif;padding:12px 22px;border-radius:99px;cursor:pointer;margin:6px 6px 0 0}
+.btn.t{background:var(--tonal);color:var(--ink)}.btn.d{background:var(--danger);color:#fff}
+.card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.card h2{margin:0 0 6px;font-size:1.25rem}.card p{margin:0 0 8px}
+.pre{white-space:pre-wrap}
+.path{color:var(--mute);font-size:.92rem;margin:4px 0 10px}.path a{color:var(--pri);font-weight:500}
+.seg{display:flex;margin-bottom:10px}
+.seg button{flex:1;border:1px solid var(--line);background:var(--card);color:var(--ink);font:500 .85rem Roboto,Arial,sans-serif;padding:10px 2px;line-height:1.25;cursor:pointer}
+.seg button:first-child{border-radius:12px 0 0 12px}.seg button:last-child{border-radius:0 12px 12px 0}
+.seg button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+label.l{display:block;font-weight:500;margin:16px 0 4px}label.l small{color:var(--mute);font-weight:400}
+input.in,textarea,select{width:100%;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px}
+textarea{min-height:120px;resize:vertical}
+.err{color:var(--danger);font-weight:500;min-height:1.4em;margin:10px 0 0}
+.chk{display:flex;align-items:center;margin-bottom:10px}.chk input{width:24px;height:24px;margin-right:10px}
+.fab{position:absolute;right:16px;bottom:78px;background:var(--acc);color:#fff;font:500 1.05rem Roboto,Arial,sans-serif;padding:0 24px;height:52px;line-height:52px;border-radius:26px;box-shadow:0 3px 8px rgba(0,0,0,.35)}
+nav{display:flex;background:var(--card);border-top:1px solid var(--line)}
+nav a{flex:1;text-align:center;padding:14px 4px;color:var(--mute);font-weight:500}
+nav a.on{color:var(--ink);font-weight:700;box-shadow:inset 0 -4px 0 var(--pri)}
+.toast{position:absolute;left:50%;bottom:140px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 20px;border-radius:20px;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.on{opacity:1}
+.note{color:var(--mute);font-size:.85rem}
+.big{font-size:1.5rem;font-weight:700;margin:8px 0}
+.chip{display:inline-block;background:var(--tonal);color:var(--ink);border-radius:99px;padding:6px 12px;margin:0 6px 6px 0;font-size:.88rem}
+.chip.se{background:none;border:1px solid var(--md)}
+.chip button{background:none;border:0;color:inherit;font-size:1.15rem;line-height:1;padding:0 0 0 8px;cursor:pointer}
+.lk{display:grid;grid-template-columns:1fr;grid-gap:8px;margin-top:6px}
+.lh{font-weight:700;margin:12px 0 6px;color:var(--mute);font-size:.9rem}
+.lk[hidden],.fl[hidden]{display:none}
+.fl{display:flex;overflow-x:auto;padding:8px 0 4px;scrollbar-width:none}.fl::-webkit-scrollbar{display:none}
+.fl button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);font:500 .85rem Roboto,Arial,sans-serif;padding:8px 14px;border-radius:99px;margin-right:6px;cursor:pointer}
+.fl button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+label.l2{display:block;font-size:.9rem;color:var(--mute);margin:10px 0 4px}
+textarea.sm2{min-height:70px}
+.two{display:grid;grid-template-columns:1fr;grid-gap:8px}
+.dots{letter-spacing:2px;color:var(--pri)}
+.chip small{opacity:.7}
+.card .row{box-shadow:none;border:1px solid var(--line)}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="bar"><button id="back" hidden aria-label="Back">←</button><h1 id="title">MedStudy</h1></div>
+  <main id="view"></main>
+  <a class="fab" id="fab" href="#/add" hidden>+ Add note</a>
+  <div class="toast" id="toast"></div>
+  <nav><a href="#/" id="n-notes">Notes</a><a href="#/study" id="n-study">Study</a><a href="#/backup" id="n-backup">Backup</a></nav>
+</div>
+<script>
+/* ---------- Body systems and organs ---------- */
+var SYS=[
+["Cardiovascular",["Heart","Arteries","Veins","Capillaries"]],
+["Respiratory",["Nose and sinuses","Pharynx","Larynx","Trachea","Bronchi","Lungs","Pleura","Diaphragm"]],
+["Nervous",["Brain","Spinal cord","Cranial nerves","Peripheral nerves","Autonomic nervous system","Neuromuscular junction"]],
+["Digestive",["Mouth and salivary glands","Oesophagus","Stomach","Small intestine","Large intestine","Liver","Gallbladder and bile ducts","Pancreas (exocrine)"]],
+["Urinary",["Kidneys","Ureters","Bladder","Urethra"]],
+["Endocrine",["Hypothalamus","Pituitary gland","Thyroid gland","Parathyroid glands","Adrenal glands","Pancreas (islets)","Gonads"]],
+["Musculoskeletal",["Bones","Joints","Skeletal muscle","Cartilage","Tendons and ligaments"]],
+["Reproductive",["Testes","Prostate","Ovaries","Fallopian tubes","Uterus","Vagina","Mammary glands","Placenta"]],
+["Blood (Haematology)",["Red blood cells","White blood cells","Platelets","Plasma","Clotting system"]],
+["Immune and lymphatic",["Lymph nodes","Spleen","Thymus","Bone marrow","Tonsils"]],
+["Skin (Integumentary)",["Skin","Hair and nails","Sweat and sebaceous glands"]],
+["Special senses",["Eye","Ear","Nose (smell)","Tongue (taste)"]],
+["General / whole body",["Whole body","Metabolism","Fluids and electrolytes","Pain and inflammation","Infections"]]
+];
+var TL={f:"Function / mechanism",m:"Medicine",d:"Disease",o:"Other (test, scan, etc.)"};
+var LK={"Cardiac output":{rel:[["Nervous","Autonomic nervous system"]]},
+"Salbutamol":{se:[["Cardiovascular","Heart"],["General / whole body","Fluids and electrolytes"]]},
+"Metformin":{rel:[["Digestive","Liver"]],se:[["Digestive",""]]},
+"Asthma":{rel:[["Immune and lymphatic",""]]},
+"Type 2 diabetes mellitus":{rel:[["Special senses","Eye"],["Urinary","Kidneys"],["Nervous","Peripheral nerves"],["Cardiovascular","Heart"]]}};
+function lk(a){return(a||[]).map(function(x){return{s:x[0],o:x[1]}})}
+function R(e,k){return e[k]||[]}
+var SX={
+ "Salbutamol":{fx:"Fine tremor, palpitations (tachycardia), headache; low potassium at high doses.",ci:"Use with care in heart disease and with other medicines that lower potassium."},
+ "Metformin":{fx:"Nausea, diarrhoea and abdominal discomfort. Rarely lactic acidosis. Long-term use can lower vitamin B12.",ci:"Severe renal impairment and other conditions that raise the risk of lactic acidosis."},
+ "Omeprazole":{fx:"Headache, diarrhoea or constipation. Long-term use may lower magnesium and vitamin B12 and slightly raise fracture risk."},
+ "Asthma":{sy:"Wheeze, cough, breathlessness and chest tightness, often worse at night or with triggers.",mg:"Avoid triggers. Inhaled reliever (e.g. salbutamol) for symptoms and an inhaled corticosteroid as a preventer."},
+ "Type 2 diabetes mellitus":{ca:"Insulin resistance with relative insulin deficiency. Risk factors: obesity, inactivity, family history, older age.",cm:"Retinopathy, nephropathy, neuropathy and cardiovascular disease.",mg:"Lifestyle changes; metformin is a common first-line medicine, with others added as needed."},
+ "Cardiac output":{nv:"About 5 L/min at rest in an adult."},
+ "Glomerular filtration":{nv:"Normal GFR about 125 mL/min."},
+ "HbA1c":{pu:"To diagnose diabetes and to check how well blood sugar has been controlled over the last 2 to 3 months.",pr:"A blood sample. You do not need to fast.",nr:"Usually below 42 mmol/mol (6.0%). 48 mmol/mol (6.5%) or more suggests diabetes. Cut-offs can differ slightly between guidelines.",ab:"Higher values mean blood sugar has been high on average.",ri:"Can be unreliable in anaemia, recent blood loss or some haemoglobin variants."},
+ "Chest X-ray":{pu:"A quick picture of the lungs, heart and ribs. Helps find infection, fluid, a collapsed lung or lumps.",pr:"You stand in front of the machine and hold your breath for a moment. Remove metal items from the chest area.",nr:"Clear lung fields, normal heart size and sharp edges to the diaphragm.",ab:"White patches can mean infection or fluid. A black area without lung markings can mean air outside the lung (pneumothorax).",ri:"Uses a very small dose of X-rays. Tell the staff if you might be pregnant."}
+};
+var SL={"s4":["s6"],"s5":["s7"],"s3":["s2"],"s8":["s7"]};
+var FLD={
+ f:[["nv","Normal values or key numbers"]],
+ m:[["ind","Other uses"],["fx","Side effects"],["ci","Cautions and contraindications"],["ia","Important interactions"]],
+ d:[["ca","Causes and risk factors"],["sy","Signs and symptoms"],["ix","Investigations"],["mg","Management"],["cm","Complications"]],
+ o:[["pu","Why it is done"],["pr","How it is done and preparation"],["nr","Normal results"],["ab","What abnormal results mean"],["ri","Risks and cautions"]]
+};
+
+/* ---------- Storage ---------- */
+var KEY="medstudy.v1",D=load();
+function load(){
+  var d=null;
+  try{
+    var s=localStorage.getItem(KEY);
+    if(s){
+      d=JSON.parse(s);
+      d.forEach(function(e){if(e.sample&&e.rel===undefined){var L=LK[e.name]||{};e.rel=lk(L.rel);e.se=lk(L.se)}});
+      d.forEach(function(e){if(e.sample&&e.ln===undefined){var sd=seed().filter(function(z){return z.id===e.id})[0];e.ln=sd?sd.ln:[];e.x=sd?sd.x:{}}});
+      if(!localStorage.getItem(KEY+".d1")&&d.some(function(e){return e.sample})){
+        seed().slice(6).forEach(function(x){if(!d.some(function(e){return e.id===x.id}))d.push(x)});
+        localStorage.setItem(KEY,JSON.stringify(d));
+      }
+      if(!localStorage.getItem(KEY+".o1")&&d.some(function(e){return e.sample})){
+        seed().slice(8).forEach(function(x){if(!d.some(function(e){return e.id===x.id}))d.push(x)});
+        localStorage.setItem(KEY,JSON.stringify(d));
+      }
+    }
+  }catch(e){d=null}
+  try{localStorage.setItem(KEY+".d1","1");localStorage.setItem(KEY+".o1","1")}catch(e){}
+  return d||seed();
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){}}
+function uid(){return "n"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function seed(){
+  var a=[
+   ["Cardiac output","f","Cardiovascular","Heart","Volume of blood the heart pumps each minute.\nCardiac output = heart rate × stroke volume (about 5 L/min at rest in an adult)."],
+   ["Glomerular filtration","f","Urinary","Kidneys","Plasma is filtered from the glomerular capillaries into Bowman's capsule. It is driven mainly by hydrostatic pressure. Normal GFR is about 125 mL/min."],
+   ["Gastric acid secretion","f","Digestive","Stomach","Parietal cells secrete hydrochloric acid using the H⁺/K⁺ ATPase (proton pump). Stimulated by histamine, gastrin and acetylcholine."],
+   ["Omeprazole","m","Digestive","Stomach","Proton pump inhibitor. Irreversibly blocks the H⁺/K⁺ ATPase in parietal cells, so less gastric acid is made."],
+   ["Salbutamol","m","Respiratory","Bronchi","Short-acting β2 agonist. Relaxes bronchial smooth muscle for quick relief in asthma. Side effects: tremor, tachycardia, low potassium."],
+   ["Metformin","m","Endocrine","Pancreas (islets)","Biguanide used in type 2 diabetes. Lowers glucose production by the liver and improves insulin sensitivity. Rarely causes hypoglycaemia on its own. Avoid in severe renal impairment (risk of lactic acidosis)."],
+   ["Asthma","d","Respiratory","Bronchi","Chronic inflammatory airway disease with reversible airflow obstruction. Wheeze, cough and breathlessness, often worse at night or with triggers. Treated with inhaled β2 agonists (e.g. salbutamol) and inhaled corticosteroids."],
+   ["Type 2 diabetes mellitus","d","Endocrine","Pancreas (islets)","Insulin resistance with relative insulin deficiency causes chronic high blood glucose. Long-term complications include retinopathy, nephropathy, neuropathy and cardiovascular disease."],
+   ["HbA1c","o","Endocrine","Pancreas (islets)","Blood test (glycated haemoglobin) that shows your average blood glucose over about the last 2 to 3 months. Used to diagnose and monitor diabetes."],
+   ["Chest X-ray","o","Respiratory","Lungs","A simple scan that uses a small amount of X-rays to take a picture of the lungs, heart and ribs."]
+  ];
+  return a.map(function(x,i){var L=LK[x[0]]||{};return {id:"s"+i,name:x[0],t:x[1],s:x[2],o:x[3],desc:x[4],star:0,sample:1,rel:lk(L.rel),se:lk(L.se),ln:(SL["s"+i]||[]).slice(),x:JSON.parse(JSON.stringify(SX[x[0]]||{})),lv:0}});
+}
+
+/* ---------- Helpers ---------- */
+function $(i){return document.getElementById(i)}
+function esc(t){return String(t==null?"":t).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function hue(i){return "hsl("+(i*27)+",55%,42%)"}
+function si(n){for(var i=0;i<SYS.length;i++)if(SYS[i][0]===n)return i;return -1}
+function oi(s,n){var i=si(s);return i<0?-1:SYS[i][1].indexOf(n)}
+function find(id){for(var i=0;i<D.length;i++)if(D[i].id===id)return D[i]}
+function byName(a,b){return a.name.toLowerCase().localeCompare(b.name.toLowerCase())}
+function cnt(s,o,t){return D.filter(function(e){return(s==null||e.s===s)&&(o==null||e.o===o)&&(t==null||e.t===t)}).length}
+function plural(n,w){return n+" "+w+(n==1?"":"s")}
+function linkText(it){return it.o?it.o+" · "+it.s:it.s+" (whole system)"}
+function chipLink(it,c){var a=si(it.s),b=it.o&&a>-1?SYS[a][1].indexOf(it.o):-1;return '<a class="chip '+(c||"")+'" href="'+(a<0?"#/":b>-1?"#/org/"+a+"/"+b:"#/sys/"+a)+'">'+esc(linkText(it))+'</a>'}
+function has(arr,s,o){return(arr||[]).some(function(x){return x.s===s&&x.o===o})}
+function linkedLists(s,o){
+  var rl=D.filter(function(e){return has(e.rel,s,o)}).sort(byName),se=D.filter(function(e){return e.t==="m"&&has(e.se,s,o)}).sort(byName);
+  return(rl.length?'<p class="cap">Also related to here</p>'+rl.map(row).join(""):"")+(se.length?'<p class="cap">Medicines with side effects here</p>'+se.map(row).join(""):"");
+}
+function LN(e){return e.ln||[]}
+function X(e){return e.x||{}}
+function nbrs(e){
+  var out=[];
+  D.forEach(function(o){if(o.id!==e.id&&(LN(e).indexOf(o.id)>-1||LN(o).indexOf(e.id)>-1))out.push(o)});
+  return out.sort(byName);
+}
+var NL={md:"Used for",dm:"Treated with",df:"Functions involved",fd:"Diseases involving this",mf:"Acts on these functions",fm:"Medicines acting here",ff:"Related functions",mm:"Related medicines",dd:"Related diseases",od:"Used to find or monitor",do:"Tests and scans used",om:"Related medicines",mo:"Related tests and monitoring",of:"Functions it checks",fo:"Tests that check this",oo:"Related tests and scans"};
+function nlabel(a,b){return NL[a.t+b.t]}
+function linkedNotes(e){
+  var g={},ord=[];
+  nbrs(e).forEach(function(o){var l=nlabel(e,o);if(!g[l]){g[l]=[];ord.push(l)}g[l].push(o)});
+  return ord.map(function(l){return '<p class="lh">'+l+'</p>'+g[l].map(row).join("")}).join("");
+}
+function dots(e){var n=Math.max(0,Math.min(5,e.lv||0));return "●●●●●".slice(0,n)+"○○○○○".slice(0,5-n)}
+function fieldsHTML(e){return(FLD[e.t]||[]).map(function(f){var v=X(e)[f[0]];return v?'<p class="lh">'+f[1]+'</p><p class="pre">'+esc(v)+'</p>':""}).join("")}
+var BL={f:"Function",m:"Medicine",d:"Disease",o:"Other"};
+function badge(e){return '<span class="b '+e.t+'">'+BL[e.t]+'</span>'}
+function row(e){return '<a class="row" href="#/entry/'+e.id+'"><div class="g"><b>'+esc(e.name)+'</b><small>'+esc(e.o)+' · '+esc(e.s)+'</small></div>'+(e.star?'<span class="star">★</span>':'')+badge(e)+'</a>'}
+function list(a){
+  var out="",L="";
+  a.forEach(function(e){var c=e.name.charAt(0).toUpperCase();if(!/[A-Z]/.test(c))c="#";if(c!==L){L=c;out+='<div class="let">'+c+'</div>'}out+=row(e)});
+  return out;
+}
+var tt;function toast(m){var t=$("toast");t.textContent=m;t.className="toast on";clearTimeout(tt);tt=setTimeout(function(){t.className="toast"},1800)}
+
+/* ---------- Organs you add yourself ---------- */
+var CUST={};
+try{CUST=JSON.parse(localStorage.getItem(KEY+".org")||"{}")}catch(e){CUST={}}
+function saveCust(){try{localStorage.setItem(KEY+".org",JSON.stringify(CUST))}catch(e){}}
+function addOrgan(s,o){var i=si(s);if(i<0||!o)return false;if(SYS[i][1].indexOf(o)<0){SYS[i][1].push(o);(CUST[s]=CUST[s]||[]).push(o)}return true}
+Object.keys(CUST).forEach(function(s){(CUST[s]||[]).forEach(function(o){var i=si(s);if(i>-1&&SYS[i][1].indexOf(o)<0)SYS[i][1].push(o)})});
+
+/* ---------- Home: A-Z list, search, systems ---------- */
+var q="",searching=false;
+var FL="all";
+function passFl(e){return FL==="all"||(FL==="star"?!!e.star:e.t===FL)}
+function flHTML(){return[["all","All"],["f","Functions"],["m","Medicines"],["d","Diseases"],["o","Other"],["star","★ Starred"]].map(function(x){return '<button data-act="flt" data-v="'+x[0]+'" class="'+(FL===x[0]?"on":"")+'">'+x[1]+'</button>'}).join("")}
+function homePage(){
+  return '<div class="search"><input id="q" type="search" placeholder="Search all your notes" autocomplete="off"><button class="txt" id="cx" hidden>Cancel</button></div><div class="fl" id="fl"></div><div id="hb"></div>';
+}
+function match(e,t){
+  t=t.toLowerCase();
+  var xs=Object.keys(X(e)).map(function(k){return X(e)[k]}).join(" ");
+  var ls=nbrs(e).map(function(o){return o.name}).join(" ");
+  return(e.name+" "+e.desc+" "+xs+" "+ls+" "+e.s+" "+e.o+" "+({f:"function mechanism",m:"medicine drug",d:"disease",o:"other test scan procedure"}[e.t])+" "+R(e,"rel").concat(R(e,"se")).map(function(x){return x.s+" "+x.o}).join(" ")+(R(e,"se").length?" side effect":"")).toLowerCase().indexOf(t)>-1;
+}
+function hb(){
+  var el=$("hb"),t=q.trim(),f=$("fl");if(!el)return;
+  $("cx").hidden=!searching&&!t;
+  if(f){f.innerHTML=flHTML();f.hidden=searching&&!t}
+  if(t){
+    var r=D.filter(function(e){return passFl(e)&&match(e,t)}).sort(byName);
+    el.innerHTML='<p class="cap">'+plural(r.length,"result")+'</p>'+(r.length?list(r):'<div class="empty">No notes match “'+esc(t)+'”.<br><a class="btn" href="#/add?n='+encodeURIComponent(t)+'">Add it as a new note</a></div>');
+  }else if(searching){
+    el.innerHTML='<p class="cap">Browse by body system</p><div class="grid">'+SYS.map(function(s,i){return '<a class="tile" style="border-left-color:'+hue(i)+'" href="#/sys/'+i+'"><b>'+esc(s[0])+'</b><small>'+plural(cnt(s[0]),"note")+' · '+s[1].length+' organs</small></a>'}).join("")+'</div>';
+  }else{
+    var a=D.filter(passFl).sort(byName);
+    el.innerHTML=a.length?'<p class="cap">'+plural(a.length,"note")+' · A to Z</p>'+list(a):'<div class="empty">'+(D.length?"No notes in this filter.":"No notes yet.<br>Tap “+ Add note” to write your first one.")+'</div>';
+  }
+}
+function bindHome(){
+  var i=$("q");q="";searching=false;hb();
+  i.onfocus=function(){searching=true;hb()};
+  i.oninput=function(){q=i.value;searching=true;hb()};
+  $("cx").onclick=function(){q="";i.value="";searching=false;i.blur();hb()};
+}
+
+/* ---------- System, organ, entry pages ---------- */
+function sysPage(i){
+  var s=SYS[i];
+  return '<p class="cap">'+plural(cnt(s[0]),"note")+' in this system</p>'+s[1].map(function(o,j){
+    return '<a class="row" href="#/org/'+i+'/'+j+'"><div class="g"><b>'+esc(o)+'</b><small>'+plural(cnt(s[0],o,"f"),"function")+' · '+plural(cnt(s[0],o,"m"),"medicine")+' · '+plural(cnt(s[0],o,"d"),"disease")+' · '+plural(cnt(s[0],o,"o"),"other")+'</small></div><span>›</span></a>';
+  }).join("")+linkedLists(s[0],"");
+}
+var tab="f";
+function orgPage(i,j){
+  var s=SYS[i][0],o=SYS[i][1][j],a=D.filter(function(e){return e.s===s&&e.o===o&&e.t===tab}).sort(byName);
+  var nm={f:"functions or mechanisms",m:"medicines",d:"diseases",o:"tests, scans or other items"};
+  function tb(t,l){return '<button data-act="tab" data-v="'+t+'" class="'+(tab===t?"on":"")+'">'+l+'<br>'+cnt(s,o,t)+'</button>'}
+  return '<div class="seg">'+tb("f","Functions")+tb("m","Medicines")+tb("d","Diseases")+tb("o","Other")+'</div>'+
+   (a.length?a.map(row).join(""):'<div class="empty">No '+nm[tab]+' noted for '+esc(o)+' yet.<br><a class="btn" href="#/add?s='+i+'&o='+j+'&t='+tab+'">Add one</a></div>')+linkedLists(s,o);
+}
+function entryPage(e){
+  var a=si(e.s),b=oi(e.s,e.o);
+  return '<div class="card"><h2>'+esc(e.name)+'</h2><div>'+badge(e)+(e.sample?'<span class="sm">Sample</span>':'')+'</div>'+
+   '<p class="path">'+(a>-1?'<a href="#/sys/'+a+'">'+esc(e.s)+'</a>':esc(e.s))+' › '+(b>-1?'<a href="#/org/'+a+'/'+b+'">'+esc(e.o)+'</a>':esc(e.o))+'</p>'+
+   '<p class="note">Memory strength <span class="dots">'+dots(e)+'</span></p>'+
+   '<p class="pre">'+(e.desc?esc(e.desc):'<span class="note">No description written yet.</span>')+'</p>'+
+   fieldsHTML(e)+linkedNotes(e)+
+   (R(e,"rel").length?'<p class="lh">Also related to</p><div>'+R(e,"rel").map(function(x){return chipLink(x)}).join("")+'</div>':'')+
+   (e.t==="m"&&R(e,"se").length?'<p class="lh">Side effects on</p><div>'+R(e,"se").map(function(x){return chipLink(x,"se")}).join("")+'</div>':'')+'</div>'+
+   '<button class="btn t" data-act="star" data-id="'+e.id+'">'+(e.star?"★ Starred (hard to remember)":"☆ Mark as hard to remember")+'</button>'+
+   '<a class="btn" href="#/edit/'+e.id+'">Edit</a><button class="btn d" data-act="del" data-id="'+e.id+'">Delete</button>';
+}
+
+/* ---------- Add / edit form ---------- */
+var F={};
+function sysOpts(){return '<option value="">Choose a system…</option>'+SYS.map(function(s){return '<option'+(F.s===s[0]?' selected':'')+'>'+esc(s[0])+'</option>'}).join("")}
+function orgOpts(){var i=si(F.s);return '<option value="">'+(i<0?"Choose a system first":"Choose an organ…")+'</option>'+(i<0?"":SYS[i][1].map(function(o){return '<option'+(F.o===o?' selected':'')+'>'+esc(o)+'</option>'}).join(""))}
+function typeSeg(){return '<button data-act="type" data-v="f" class="'+(F.t==="f"?"on":"")+'">Function</button><button data-act="type" data-v="m" class="'+(F.t==="m"?"on":"")+'">Medicine</button><button data-act="type" data-v="d" class="'+(F.t==="d"?"on":"")+'">Disease</button><button data-act="type" data-v="o" class="'+(F.t==="o"?"on":"")+'">Other</button>'}
+function oOpts(P){var i=si(P.s);return '<option value="">'+(i<0?"Choose a system first":"Whole system")+'</option>'+(i<0?"":SYS[i][1].map(function(o){return '<option'+(P.o===o?' selected':'')+'>'+esc(o)+'</option>'}).join(""))}
+function linkInner(k){
+  var P=F.p[k];
+  return F[k].map(function(it,i){return '<span class="chip '+(k==="se"?"se":"")+'">'+esc(linkText(it))+'<button data-act="rmlink" data-k="'+k+'" data-i="'+i+'" aria-label="Remove">×</button></span>'}).join("")+
+   '<div class="lk"><select id="p-'+k+'-s"><option value="">Choose a system…</option>'+SYS.map(function(s){return '<option'+(P.s===s[0]?' selected':'')+'>'+esc(s[0])+'</option>'}).join("")+'</select><select id="p-'+k+'-o"'+(P.s?'':' disabled')+'>'+oOpts(P)+'</select><button class="btn t" data-act="addlink" data-k="'+k+'">Add</button></div>';
+}
+function xFields(){
+  var f=FLD[F.t]||[];
+  return f.length?'<label class="l">6. Extra details <small>(optional)</small></label>'+f.map(function(x){return '<label class="l2" for="x-'+x[0]+'">'+x[1]+'</label><textarea class="sm2" id="x-'+x[0]+'">'+esc(F.x[x[0]]||"")+'</textarea>'}).join(""):"";
+}
+var TG={f:"Functions",m:"Medicines",d:"Diseases",o:"Other (tests, scans)"};
+function lnInner(){
+  var pref={m:["d","o","f","m"],d:["o","m","f","d"],f:["d","o","m","f"],o:["d","f","m","o"]}[F.t]||["d","m","f","o"];
+  var hint={m:"Link the diseases this medicine is used for.",d:"Link the medicines that treat this disease, and tests used to find it.",f:"Link diseases where this goes wrong, tests that check it, or medicines that act on it.",o:"Link the diseases this test finds or monitors, or the functions it checks."}[F.t]||"Choose a type first for smarter suggestions.";
+  var chips=F.ln.map(function(id,i){var n=find(id);return n?'<span class="chip">'+esc(n.name)+' <small>'+BL[n.t]+'</small><button data-act="rmnote" data-i="'+i+'" aria-label="Remove">×</button></span>':""}).join("");
+  var opts=pref.map(function(t){
+    var a=D.filter(function(n){return n.t===t&&n.id!==F.id&&F.ln.indexOf(n.id)<0}).sort(byName);
+    return a.length?'<optgroup label="'+TG[t]+'">'+a.map(function(n){return '<option value="'+n.id+'">'+esc(n.name)+'</option>'}).join("")+'</optgroup>':"";
+  }).join("");
+  return '<p class="note">'+hint+'</p>'+chips+'<div class="lk"><select id="p-ln"><option value="">'+(opts?"Choose a note to link…":"No other notes to link yet")+'</option>'+opts+'</select><button class="btn t" data-act="addnote">Add</button></div><p class="note">Not in the list? Save this note, add the other one, then link them.</p>';
+}
+function formPage(){
+  return '<label class="l" for="f-n">1. Name</label><input class="in" id="f-n" value="'+esc(F.name)+'" placeholder="e.g. Cardiac output, Salbutamol or Asthma" autocomplete="off">'+
+   '<label class="l" for="f-d">2. Description <small>(optional)</small></label><textarea id="f-d" placeholder="What do you want to remember?">'+esc(F.desc)+'</textarea>'+
+   '<label class="l" for="f-s">3. Body system</label><select id="f-s">'+sysOpts()+'</select>'+
+   '<label class="l" for="f-o">4. Organ</label><select id="f-o"'+(F.s?'':' disabled')+'>'+orgOpts()+'</select>'+
+   '<button class="txt" data-act="neworg" style="padding-left:2px">Organ not listed? Add your own</button><div class="lk" id="no-row" hidden><input class="in" id="f-no" placeholder="New organ name" autocomplete="off"><button class="btn t" data-act="addorg">Save organ</button></div>'+
+   '<label class="l">5. This is a… <small>(function or mechanism, medicine, disease, or other such as a scan or test)</small></label><div class="seg" id="seg">'+typeSeg()+'</div>'+
+   '<div id="xf">'+xFields()+'</div>'+
+   '<label class="l">7. Also related to <small>(optional: another organ or system this connects to)</small></label><div id="lk-rel">'+linkInner("rel")+'</div>'+
+   '<div id="se-wrap"'+(F.t==="m"?'':' hidden')+'><label class="l">8. Side effects on <small>(optional: organs or systems this medicine can affect)</small></label><div id="lk-se">'+linkInner("se")+'</div></div>'+
+   '<label class="l">9. Link to other notes <small>(optional: medicines to diseases and more)</small></label><div id="ln-wrap">'+lnInner()+'</div>'+
+   '<p class="err" id="err"></p><button class="btn" data-act="save">Save note</button>';
+}
+function saveForm(){
+  var n=F.name.trim();
+  if(!n||!F.s||!F.o||!F.t){$("err").textContent="Please fill in the name, system, organ and type.";return}
+  var e=F.id?find(F.id):null,se=F.t==="m"?F.se:[],x={};
+  (FLD[F.t]||[]).forEach(function(f){var v=(F.x[f[0]]||"").trim();if(v)x[f[0]]=v});
+  if(e){e.name=n;e.desc=F.desc.trim();e.s=F.s;e.o=F.o;e.t=F.t;e.sample=0;e.rel=F.rel;e.se=se}
+  else{e={id:uid(),name:n,desc:F.desc.trim(),s:F.s,o:F.o,t:F.t,star:0,sample:0,rel:F.rel,se:se,lv:0};D.push(e)}
+  e.x=x;e.ln=F.ln.filter(function(i){return find(i)&&i!==e.id});
+  D.forEach(function(o){if(o.id!==e.id&&o.ln)o.ln=o.ln.filter(function(i){return i!==e.id})});
+  save();toast("Saved");location.replace("#/entry/"+e.id);
+}
+
+/* ---------- Study (flashcards) ---------- */
+var ST={deck:[],total:0,show:false,star:false,on:false,type:"all",sys:""};
+function deal(){
+  var a=D.filter(function(e){return(!ST.star||e.star)&&(ST.type==="all"||e.t===ST.type)&&(!ST.sys||e.s===ST.sys)}).map(function(e){return{id:e.id,k:(e.lv||0)+Math.random()*1.5}});
+  a.sort(function(x,y){return x.k-y.k});
+  ST.deck=a.map(function(x){return x.id});ST.total=ST.deck.length;ST.show=false;ST.on=true;
+}
+function backText(e){
+  var g={},ord=[];nbrs(e).forEach(function(o){var l=nlabel(e,o);if(!g[l]){g[l]=[];ord.push(l)}g[l].push(o.name)});
+  return '<p class="pre">'+(e.desc?esc(e.desc):'<span class="note">No description written yet.</span>')+'</p>'+fieldsHTML(e)+
+   ord.map(function(l){return '<p class="path">'+l+': '+esc(g[l].join(", "))+'</p>'}).join("")+
+   (R(e,"rel").length?'<p class="path">Also related to: '+esc(R(e,"rel").map(linkText).join("; "))+'</p>':'')+
+   (e.t==="m"&&R(e,"se").length?'<p class="path">Side effects on: '+esc(R(e,"se").map(linkText).join("; "))+'</p>':'');
+}
+function studyPage(){
+  if(!ST.on)deal();
+  var ty=[["all","All types"],["f","Functions"],["m","Medicines"],["d","Diseases"],["o","Other"]].map(function(x){return '<option value="'+x[0]+'"'+(ST.type===x[0]?' selected':'')+'>'+x[1]+'</option>'}).join("");
+  var sy='<option value="">All systems</option>'+SYS.map(function(s){return '<option'+(ST.sys===s[0]?' selected':'')+'>'+esc(s[0])+'</option>'}).join("");
+  var h='<div class="card"><div class="two"><select id="st-type" aria-label="Type">'+ty+'</select><select id="st-sys" aria-label="System">'+sy+'</select></div><label class="chk" style="margin:10px 0 0"><input type="checkbox" data-act="staronly"'+(ST.star?' checked':'')+'> Starred notes only</label></div>';
+  if(!ST.total)return h+'<div class="empty">Nothing to study here yet.<br>Try other filters or add some notes.</div>';
+  if(!ST.deck.length)return h+'<div class="card"><h2>Well done!</h2><p>You finished this round.</p><button class="btn" data-act="restart">Study again</button></div>';
+  var e=find(ST.deck[0]);if(!e){ST.deck.shift();return studyPage()}
+  return h+'<p class="cap">'+ST.deck.length+' left · notes you know least come first</p><div class="card"><div>'+badge(e)+' <span class="dots">'+dots(e)+'</span></div><div class="big">'+esc(e.name)+'</div><p class="path">'+esc(e.o)+' · '+esc(e.s)+'</p>'+
+   (ST.show?backText(e)+'</div><button class="btn t" data-act="again">Again</button><button class="btn" data-act="got">Got it</button>'
+           :'<p class="note">Try to recall what you wrote, then check.</p></div><button class="btn" data-act="reveal">Show answer</button>');
+}
+
+/* ---------- Backup ---------- */
+function cl(a){return(Array.isArray(a)?a:[]).filter(function(x){return x&&x.s}).map(function(x){return{s:String(x.s),o:String(x.o||"")}})}
+function cx(o){var r={};if(o&&typeof o==="object")Object.keys(o).forEach(function(k){if(/^[a-z_]{1,8}$/.test(k)&&typeof o[k]==="string"&&o[k])r[k]=o[k]});return r}
+function exportText(sys){return JSON.stringify({v:2,notes:sys?D.filter(function(e){return e.s===sys}):D,organs:CUST})}
+function backupPage(){
+  return '<div class="card"><h2>Share or back up</h2><p class="note">Choose what to include, copy the text, and send it (for example on WhatsApp). Your friend pastes it under Restore. It is also your backup.</p><select id="ex-sys" aria-label="What to include"><option value="">Everything</option>'+SYS.map(function(s){return '<option>'+esc(s[0])+'</option>'}).join("")+'</select><textarea id="ex" readonly style="margin-top:8px">'+esc(exportText(""))+'</textarea><button class="btn" data-act="copy">Copy</button></div>'+
+   '<div class="card"><h2>Restore or add from a friend</h2><p class="note">Paste a backup, then tap Check. Notes you already have are recognised, so pasting the same backup twice never creates duplicates.</p><textarea id="im" placeholder="Paste a backup here"></textarea><button class="btn" data-act="import">Check backup</button><p id="imsg" class="note"></p><div id="imprev"></div></div>'+
+   '<div class="card"><h2>Sample notes</h2><p class="note">Remove the example notes when you are ready to use your own.</p><button class="btn d" data-act="delsamples">Delete sample notes</button></div>'+
+   '<p class="note">Study aid only. Always check facts and doses against your textbooks or the BNF.</p>';
+}
+
+/* ---------- Smart import: detect notes you already have ---------- */
+var IMP=null;
+function norm(t){return String(t||"").toLowerCase().replace(/[\s\-_.,;:()\/'"’]+/g," ").trim()}
+function nkey(e){return e.t+"|"+norm(e.name)}
+function has2(a,v){return norm(a).indexOf(norm(v))>-1}
+function uniq(a){return a.filter(function(v,i){return a.indexOf(v)===i})}
+function cleanNote(x){
+  if(!x||!x.id||!x.name||!String(x.name).trim()||!x.s||!x.o||!(x.t==="f"||x.t==="m"||x.t==="d"||x.t==="o"))return null;
+  return{id:String(x.id),name:String(x.name).trim(),desc:String(x.desc||""),s:String(x.s),o:String(x.o),t:x.t,star:x.star?1:0,sample:x.sample?1:0,rel:cl(x.rel),se:cl(x.se),ln:Array.isArray(x.ln)?x.ln.map(String):[],x:cx(x.x),lv:Math.max(0,Math.min(5,+x.lv||0))};
+}
+function planImport(arr){
+  var byId={},byKey={},map={},items=[],newIds={};
+  D.forEach(function(e){byId[e.id]=e;if(!byKey[nkey(e)])byKey[nkey(e)]=e});
+  arr.forEach(function(x){
+    var c=cleanNote(x);if(!c)return;
+    var m=byId[c.id]||byKey[nkey(c)]||null,it={c:c,m:m,id:null,st:"new"};
+    if(m)it.id=m.id;
+    else{it.id=byId[c.id]?uid():c.id;var p={id:it.id,t:c.t,name:c.name};byId[it.id]=p;byKey[nkey(c)]=p;newIds[it.id]=1}
+    map[c.id]=it.id;items.push(it);
+  });
+  return{items:items,map:map,newIds:newIds};
+}
+function diffs(m,c,pl){
+  var text=[];
+  if(c.desc.trim()&&!has2(m.desc,c.desc))text.push("desc");
+  Object.keys(c.x).forEach(function(k){if(!has2(X(m)[k]||"",c.x[k]))text.push(k)});
+  var ln=uniq(c.ln.map(function(i){return pl.map[i]})).filter(function(i){
+    return i&&i!==m.id&&(find(i)||pl.newIds[i])&&LN(m).indexOf(i)<0&&!(find(i)&&LN(find(i)).indexOf(m.id)>-1);
+  });
+  var rel=c.rel.filter(function(r){return si(r.s)>-1&&!has(m.rel,r.s,r.o)&&!(r.s===m.s&&r.o===m.o)});
+  if((c.s!==m.s||c.o!==m.o)&&si(c.s)>-1&&!has(m.rel,c.s,c.o)&&!has(rel,c.s,c.o))rel.push({s:c.s,o:c.o});
+  var se=m.t==="m"?c.se.filter(function(r){return si(r.s)>-1&&!has(m.se,r.s,r.o)}):[];
+  return{text:text,ln:ln,rel:rel,se:se};
+}
+function classify(pl,own){
+  var sum={nw:0,same:0,diff:0,skip:0,names:[]};
+  pl.items.forEach(function(it){
+    var c=it.c,m=it.m;
+    if(c.sample&&!own){it.st="skip";sum.skip++;return}
+    if(!m){it.st="new";sum.nw++;return}
+    if(!find(m.id)){it.st="dup";return}
+    var ch=diffs(m,c,pl);it.ch=ch;
+    if(ch.text.length||ch.ln.length||ch.rel.length||ch.se.length){it.st="diff";sum.diff++;if(sum.names.length<8)sum.names.push(m.name)}
+    else{it.st="same";sum.same++}
+  });
+  return sum;
+}
+function mergeText(mine,theirs){
+  if(!theirs||!theirs.trim())return mine||"";
+  if(!mine||!mine.trim())return theirs;
+  if(has2(mine,theirs))return mine;
+  if(has2(theirs,mine))return theirs;
+  return mine+"\n\n[Imported] "+theirs;
+}
+function showPrev(){
+  var cb=$("im-own"),own=!!(cb&&cb.checked),sum=classify(IMP.plan,own);
+  $("imprev").innerHTML='<div class="card" style="margin-top:12px"><h2>Backup checked</h2><p>• <b>'+sum.nw+'</b> new<br>• <b>'+sum.same+'</b> already in your app (same)<br>• <b>'+sum.diff+'</b> already in your app, with extra text or links'+(sum.skip?'<br>• '+sum.skip+' sample notes skipped':'')+'</p>'+
+   (sum.names.length?'<p class="note">Different: '+esc(sum.names.join(", "))+(sum.diff>sum.names.length?" and more":"")+'</p>':'')+
+   '<label class="chk"><input type="checkbox" id="im-own"'+(own?' checked':'')+'> This is my own backup (keep stars and memory strength)</label>'+
+   '<button class="btn" data-act="impnew">Add new notes only</button>'+(sum.diff?'<button class="btn t" data-act="impmerge">Add new + merge differences</button>':'')+'<button class="btn t" data-act="impcancel">Cancel</button>'+
+   (sum.diff?'<p class="note">Merging keeps your text and adds theirs below it, marked [Imported]. Nothing is deleted.</p>':'')+'</div>';
+}
+function applyImport(merge,own){
+  var pl=IMP.plan,added=0,upd=0,same=0;
+  Object.keys(IMP.orgs||{}).forEach(function(s){if(Array.isArray(IMP.orgs[s]))IMP.orgs[s].forEach(function(o){addOrgan(s,String(o))})});saveCust();
+  classify(pl,own);
+  pl.items.forEach(function(it){
+    if(it.st!=="new")return;var c=it.c;
+    D.push({id:it.id,name:c.name,desc:c.desc,s:c.s,o:c.o,t:c.t,star:own?c.star:0,sample:own?c.sample:0,rel:c.rel,se:c.t==="m"?c.se:[],ln:[],x:c.x,lv:own?c.lv:0});added++;
+  });
+  pl.items.forEach(function(it){
+    var c=it.c,n=find(it.id);if(!n)return;
+    var ids=uniq(c.ln.map(function(i){return pl.map[i]})).filter(function(i){return i&&i!==n.id&&find(i)});
+    if(it.st==="new")n.ln=ids;
+    else if(it.st==="dup"){n.desc=mergeText(n.desc,c.desc);n.x=n.x||{};Object.keys(c.x).forEach(function(k){n.x[k]=mergeText(n.x[k]||"",c.x[k])});n.ln=uniq(LN(n).concat(ids))}
+    else if(it.st==="same")same++;
+    else if(it.st==="diff"&&merge){
+      n.desc=mergeText(n.desc,c.desc);n.x=n.x||{};
+      Object.keys(c.x).forEach(function(k){n.x[k]=mergeText(n.x[k]||"",c.x[k])});
+      it.ch.ln.forEach(function(i){if(find(i)&&LN(n).indexOf(i)<0)n.ln=LN(n).concat(i)});
+      it.ch.rel.forEach(function(r){n.rel=R(n,"rel").concat([{s:r.s,o:r.o}])});
+      it.ch.se.forEach(function(r){n.se=R(n,"se").concat([{s:r.s,o:r.o}])});
+      if(own){n.star=(n.star||c.star)?1:0;n.lv=Math.max(n.lv||0,c.lv)}
+      upd++;
+    }
+  });
+  D.forEach(function(o){if(o.ln)o.ln=o.ln.filter(function(i){return find(i)&&i!==o.id})});
+  save();
+  return added+" new, "+upd+" updated, "+same+" already up to date.";
+}
+
+/* ---------- Router ---------- */
+function route(){
+  var h=location.hash.replace(/^#\/?/,""),p=h.split("?"),qs={};
+  if(p[1])p[1].split("&").forEach(function(kv){var a=kv.split("=");qs[a[0]]=decodeURIComponent(a[1]||"")});
+  var seg=p[0].split("/"),r=seg[0]||"home",v=$("view"),title="MedStudy",back=true,fab=false,nav="notes",html="",after=null;
+  if(r==="home"){back=false;fab=true;html=homePage();after=bindHome}
+  else if(r==="sys"&&SYS[+seg[1]]){title=SYS[+seg[1]][0];html=sysPage(+seg[1]);fab=true}
+  else if(r==="org"&&SYS[+seg[1]]&&SYS[+seg[1]][1][+seg[2]]){title=SYS[+seg[1]][1][+seg[2]];html=orgPage(+seg[1],+seg[2]);fab=true;
+    $("fab").href="#/add?s="+seg[1]+"&o="+seg[2]+"&t="+tab}
+  else if(r==="entry"&&find(seg[1])){title=TL[find(seg[1]).t];html=entryPage(find(seg[1]))}
+  else if(r==="add"||(r==="edit"&&find(seg[1]))){
+    var e=r==="edit"?find(seg[1]):null;title=e?"Edit note":"New note";
+    if(e)F={id:e.id,name:e.name,desc:e.desc,s:e.s,o:e.o,t:e.t,rel:R(e,'rel').slice(),se:R(e,'se').slice(),ln:nbrs(e).map(function(n){return n.id}),x:JSON.parse(JSON.stringify(X(e)))};
+    else{F={name:qs.n||"",desc:"",s:"",o:"",t:"",rel:[],se:[],ln:[],x:{}};var a=SYS[+qs.s];if(a&&a[1][+qs.o]){F.s=a[0];F.o=a[1][+qs.o]}if(qs.t==="f"||qs.t==="m"||qs.t==="d"||qs.t==="o")F.t=qs.t}
+    F.p={rel:{s:"",o:""},se:{s:"",o:""}};html=formPage();
+  }
+  else if(r==="study"){title="Study";nav="study";ST.on=false;html=studyPage()}
+  else if(r==="backup"){title="Backup";nav="backup";html=backupPage()}
+  else{location.replace("#/");return}
+  if(!(r==="org"))$("fab").href="#/add";
+  v.innerHTML=html;v.scrollTop=0;
+  $("title").textContent=title;$("back").hidden=!back;$("fab").hidden=!fab;
+  ["notes","study","backup"].forEach(function(k){$("n-"+k).className=k===nav?"on":""});
+  if(after)after();
+}
+window.addEventListener("hashchange",route);
+
+/* ---------- Events ---------- */
+var armed=null;
+document.addEventListener("click",function(ev){
+  var b=ev.target.closest?ev.target.closest("[data-act]"):null;if(!b)return;
+  var a=b.getAttribute("data-act"),id=b.getAttribute("data-id"),e;
+  if(a==="tab"){tab=b.getAttribute("data-v");route()}
+  else if(a==="type"){F.t=b.getAttribute("data-v");$("seg").innerHTML=typeSeg();$("se-wrap").hidden=F.t!=="m";$("xf").innerHTML=xFields();$("ln-wrap").innerHTML=lnInner()}
+  else if(a==="addnote"){var v=$("p-ln").value;if(!v){toast("Choose a note first");return}if(F.ln.indexOf(v)<0)F.ln.push(v);$("ln-wrap").innerHTML=lnInner()}
+  else if(a==="rmnote"){F.ln.splice(+b.getAttribute("data-i"),1);$("ln-wrap").innerHTML=lnInner()}
+  else if(a==="neworg"){$("no-row").hidden=!$("no-row").hidden}
+  else if(a==="addorg"){
+    var nn=($("f-no").value||"").trim();
+    if(!F.s){toast("Choose a system first");return}
+    if(!nn){toast("Type the organ name");return}
+    addOrgan(F.s,nn);saveCust();F.o=nn;$("f-o").innerHTML=orgOpts();$("f-o").disabled=false;$("f-no").value="";$("no-row").hidden=true;toast("Organ added");
+  }
+  else if(a==="flt"){FL=b.getAttribute("data-v");hb()}
+  else if(a==="addlink"){
+    var k=b.getAttribute("data-k"),P=F.p[k];
+    if(!P.s){toast("Choose a system first");return}
+    var it={s:P.s,o:P.o};
+    if(k==="rel"&&it.s===F.s&&it.o===F.o){toast("That is already this note's own organ")}
+    else if(!has(F[k],it.s,it.o))F[k].push(it);
+    F.p[k]={s:"",o:""};$("lk-"+k).innerHTML=linkInner(k);
+  }
+  else if(a==="rmlink"){var k2=b.getAttribute("data-k");F[k2].splice(+b.getAttribute("data-i"),1);$("lk-"+k2).innerHTML=linkInner(k2)}
+  else if(a==="save")saveForm();
+  else if(a==="star"){e=find(id);e.star=e.star?0:1;save();route()}
+  else if(a==="del"||a==="delsamples"){
+    var key=a+(id||"");
+    if(armed===key){
+      if(a==="del"){D=D.filter(function(x){return x.id!==id});D.forEach(function(o){if(o.ln)o.ln=o.ln.filter(function(i){return i!==id})});save();armed=null;toast("Deleted");location.replace("#/")}
+      else{D=D.filter(function(x){return!x.sample});save();armed=null;toast("Samples deleted");route()}
+    }else{armed=key;var old=b.textContent;b.textContent="Tap again to confirm";setTimeout(function(){armed=null;b.textContent=old},3000)}
+  }
+  else if(a==="reveal"){ST.show=true;$("view").innerHTML=studyPage()}
+  else if(a==="again"){e=find(ST.deck[0]);if(e){e.lv=0;save()}var c=ST.deck.shift();ST.deck.splice(Math.min(3,ST.deck.length),0,c);ST.show=false;$("view").innerHTML=studyPage()}
+  else if(a==="got"){e=find(ST.deck[0]);if(e){e.lv=Math.min(5,(e.lv||0)+1);save()}ST.deck.shift();ST.show=false;$("view").innerHTML=studyPage()}
+  else if(a==="restart"){deal();$("view").innerHTML=studyPage()}
+  else if(a==="copy"){var t=$("ex");t.select();try{document.execCommand("copy");toast("Copied")}catch(x){toast("Select the text and copy it")}}
+  else if(a==="import"){
+    try{
+      var obj=JSON.parse($("im").value),arr=Array.isArray(obj)?obj:obj.notes;
+      if(!Array.isArray(arr))throw 0;
+      IMP={plan:planImport(arr),orgs:(!Array.isArray(obj)&&obj.organs&&typeof obj.organs==="object")?obj.organs:{}};
+      $("imsg").textContent="";showPrev();
+    }catch(x){IMP=null;$("imprev").innerHTML="";$("imsg").textContent="That doesn't look like a valid backup."}
+  }
+  else if(a==="impnew"||a==="impmerge"){
+    if(!IMP)return;
+    var own=$("im-own")?$("im-own").checked:false,res=applyImport(a==="impmerge",own);
+    IMP=null;$("imprev").innerHTML="";$("im").value="";$("imsg").textContent=res;$("ex").value=exportText($("ex-sys").value);toast("Import done");
+  }
+  else if(a==="impcancel"){IMP=null;$("imprev").innerHTML=""}
+});
+document.addEventListener("change",function(ev){
+  var t=ev.target;
+  if(t.getAttribute&&t.getAttribute("data-act")==="staronly"){ST.star=t.checked;deal();$("view").innerHTML=studyPage()}
+  else if(t.id==="ex-sys")$("ex").value=exportText(t.value);
+  else if(t.id==="im-own"&&IMP)showPrev();
+  else if(t.id==="st-type"||t.id==="st-sys"){if(t.id==="st-type")ST.type=t.value;else ST.sys=t.value;deal();$("view").innerHTML=studyPage()}
+  else if(t.id==="f-s"){F.s=t.value;F.o="";$("f-o").innerHTML=orgOpts();$("f-o").disabled=!F.s}
+  else if(t.id==="f-o")F.o=t.value;
+  else if(/^p-(rel|se)-[so]$/.test(t.id)){
+    var pp=t.id.split("-"),Q=F.p[pp[1]];
+    if(pp[2]==="s"){Q.s=t.value;Q.o="";$("p-"+pp[1]+"-o").innerHTML=oOpts(Q);$("p-"+pp[1]+"-o").disabled=!Q.s}
+    else Q.o=t.value;
+  }
+});
+document.addEventListener("input",function(ev){
+  var t=ev.target;
+  if(t.id==="f-n")F.name=t.value;else if(t.id==="f-d")F.desc=t.value;else if(/^x-/.test(t.id))F.x[t.id.slice(2)]=t.value;
+});
+$("back").onclick=function(){if(history.length>1)history.back();else location.hash="#/"};
+route();
+</script>
+</body>
+</html>
